@@ -22,6 +22,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import PetsIcon from '@mui/icons-material/Pets';
 import FlutterDashIcon from '@mui/icons-material/FlutterDash';
+import { signOut, getAuth } from 'firebase/auth';
 
 
 // internal imports
@@ -85,6 +86,9 @@ const navStyles = {
 export const NavBar = () => {
     const [open, setOpen ] = useState(false)
     const navigate = useNavigate();
+    const auth = getAuth();
+    const myAuth = localStorage.getItem('auth');
+
 
     const handleDrawerOpen = () => {
         setOpen(true)
@@ -94,6 +98,7 @@ export const NavBar = () => {
         setOpen(false)
     }
 
+
     const navLinks = [
         {
             text: 'Home',
@@ -101,16 +106,32 @@ export const NavBar = () => {
             onClick: () => navigate('/')
         },
         {
-            text: 'Shop',
-            icon: <PetsIcon sx={{ color: blue[200] }}/>,
-            onClick: () => navigate('/shop')
+            text: myAuth === 'true' ? 'Shop' : 'Sign In',
+            icon: myAuth === 'true' ? <PetsIcon sx={{ color: blue[200] }}/> : <ShoppingBasketIcon sx={{ color: blue[200] }}/>,
+            onClick: () => navigate(myAuth === 'true' ? '/shop' : '/auth')
         },
         {
-            text: 'Cart',
-            icon: <ShoppingCartIcon sx={{ color: blue[200] }}/>,
-            onClick: () => navigate('/cart')
+            text: myAuth === 'true' ? 'Cart' : '',
+            icon: myAuth === 'true' ? <ShoppingCartIcon sx={{ color: blue[200] }}/> : '',
+            onClick: myAuth === 'true' ? () => navigate('/cart') : () => {}
         }
     ]
+
+    let buttonText: string
+    myAuth === 'true' ? buttonText = 'Sign Out' : buttonText = 'Sign In'
+
+    const signInButton = async () => {
+        if (myAuth === 'false') {
+            navigate('/auth')
+        } else {
+            await signOut(auth)
+            localStorage.setItem('auth', 'false')
+            localStorage.setItem('user', "")
+            localStorage.setItem('uuid', "")
+            navigate('/')
+        }
+    }
+
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -137,15 +158,16 @@ export const NavBar = () => {
                     sx = { navStyles.signInStack }
                 >
                     <Typography variant='body2' sx={{ color: 'inherit' }}>
-                        Lucky User
+                        {localStorage.getItem('user')}
                     </Typography>
                     <Button
                         variant = 'contained'
                         color = 'info'
                         size = 'large'
                         sx = {{ marginLeft: '20px'}}
+                        onClick = { signInButton }
                     >
-                        Sign In
+                        { buttonText }
                     </Button>
                 </Stack>
             </AppBar>

@@ -40,13 +40,14 @@ const MainText = styled('div')({
 
 
 export const Home = (props: Props) => {
+    const myAuth = localStorage.getItem('auth')
     return (
         <Root>
             <NavBar />
             <Main>
                 <MainText>
                     <Typography variant='h3'> { props.title }</Typography>
-                    <Button sx={{ marginTop: '10px'}} component={Link} to={'/shop'} variant='contained'>Find your dream pet</Button>
+                    <Button sx={{ marginTop: '10px'}} component={Link} to={ myAuth === 'true' ? '/shop' : '/auth' } variant='contained'>Find your dream pet</Button>
                 </MainText>
             </Main>
         </Root>
